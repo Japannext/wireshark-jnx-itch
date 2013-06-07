@@ -350,102 +350,102 @@ proto_register_jnx_itch(void)
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
     { &hf_jnx_itch_message_type,
-      { "Message Type",         "jnx-itch.message_type",
+      { "Message Type",         "jnx_itch.message_type",
         FT_UINT8, BASE_DEC, VALS(message_types_val), 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_second,
-      { "Second",         "jnx-itch.second",
+      { "Second",         "jnx_itch.second",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_nanoseconds,
-      { "Nanoseconds",         "jnx-itch.nanoseconds",
+      { "Nanoseconds",         "jnx_itch.nanoseconds",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_system_event,
-      { "System Event",         "jnx-itch.system_event",
+      { "System Event",         "jnx_itch.system_event",
         FT_UINT8, BASE_DEC, VALS(system_event_val), 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_stock,
-      { "Stock",         "jnx-itch.stock",
+      { "Stock",         "jnx_itch.stock",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Uniqie security identifier", HFILL }},
 
     { &hf_jnx_itch_isin,
-      { "ISIN",         "jnx-itch.isin",
+      { "ISIN",         "jnx_itch.isin",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Denotes the security ISIN for the issue.", HFILL }},
 
     { &hf_jnx_itch_group,
-      { "Group",         "jnx-itch.group",
+      { "Group",         "jnx_itch.group",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Security group identifier", HFILL }},
 
     { &hf_jnx_itch_round_lot_size,
-      { "Round Lot Size",         "jnx-itch.round_lot_size",
+      { "Round Lot Size",         "jnx_itch.round_lot_size",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_trading_state,
-      { "Trading State",         "jnx-itch.trading_state",
+      { "Trading State",         "jnx_itch.trading_state",
         FT_UINT8, BASE_DEC, VALS(trading_state_val), 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_order_reference_number,
-      { "Order Reference",         "jnx-itch.order_reference_number",
+      { "Order Reference",         "jnx_itch.order_reference_number",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         "Order reference number", HFILL }},
 
     { &hf_jnx_itch_original_order_reference_number,
-      { "Original Order Reference",         "jnx-itch.original_order_reference_number",
+      { "Original Order Reference",         "jnx_itch.original_order_reference_number",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         "Original order reference number", HFILL }},
 
     { &hf_jnx_itch_new_order_reference_number,
-      { "New Order Reference",         "jnx-itch.new_order_reference_number",
+      { "New Order Reference",         "jnx_itch.new_order_reference_number",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         "New order reference number", HFILL }},
 
     { &hf_jnx_itch_buy_sell,
-      { "Buy/Sell",         "jnx-itch.buy_sell",
+      { "Buy/Sell",         "jnx_itch.buy_sell",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Buy/Sell indicator", HFILL }},
 
     { &hf_jnx_itch_shares,
-      { "Shares",         "jnx-itch.shares",
+      { "Shares",         "jnx_itch.shares",
         FT_UINT32, BASE_DEC,  NULL, 0x0,
         "Number of shares", HFILL }},
 
     { &hf_jnx_itch_price,
-      { "Price",         "jnx-itch.price",
+      { "Price",         "jnx_itch.price",
         FT_DOUBLE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_attribution,
-      { "Attribution",         "jnx-itch.attribution",
+      { "Attribution",         "jnx_itch.attribution",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Market participant identifier", HFILL }},
 
     { &hf_jnx_itch_order_type,
-      { "Order Type",         "jnx-itch.order_type",
+      { "Order Type",         "jnx_itch.order_type",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_executed,
-      { "Executed Shares",         "jnx-itch.executed",
+      { "Executed Shares",         "jnx_itch.executed",
         FT_UINT32, BASE_DEC,  NULL, 0x0,
         "Number of shares executed", HFILL }},
 
     { &hf_jnx_itch_match_number,
-      { "Match Number",         "jnx-itch.match_number",
+      { "Match Number",         "jnx_itch.match_number",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Match number", HFILL }},
 
     { &hf_jnx_itch_message,
-      { "Message",         "jnx-itch.message",
+      { "Message",         "jnx_itch.message",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }}
     };
