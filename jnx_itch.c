@@ -107,6 +107,23 @@ order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, i
   return offset + 8;
 }
 
+/* ---------------------- */
+static int
+match_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset, int col)
+{
+  gint col_info = PINFO_COL(pinfo);
+
+  if (jnx_itch_tree || col_info) {
+      guint64 value = tvb_get_ntoh64(tvb, offset);
+
+      proto_tree_add_uint64(jnx_itch_tree, col, tvb, offset, 8, value);
+      if (col_info) {
+          col_append_fstr(pinfo->cinfo, COL_INFO, "%lu ", value);
+      }
+  }
+  return offset + 8;
+}
+
 /* -------------------------- */
 static int
 timestamp(tvbuff_t *tvb, proto_tree *jnx_itch_tree, int id, int offset)
@@ -215,7 +232,8 @@ executed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offse
 
   offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_executed, offset);
 
-  offset += 8; //XXX Match
+  offset = match_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_match_number);
+
   return offset;
 }
 
@@ -441,7 +459,7 @@ proto_register_jnx_itch(void)
 
     { &hf_jnx_itch_match_number,
       { "Match Number",         "jnx_itch.match_number",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_UINT64, BASE_DEC, NULL, 0x0,
         "Match number", HFILL }},
 
     { &hf_jnx_itch_message,
