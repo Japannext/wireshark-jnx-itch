@@ -61,11 +61,12 @@ static int hf_jnx_itch_group = -1;
 static int hf_jnx_itch_isin = -1;
 static int hf_jnx_itch_stock = -1;
 static int hf_jnx_itch_round_lot_size = -1;
-/*static int hf_jnx_itch_tick_size_table = -1;
+static int hf_jnx_itch_tick_size_table = -1;
 static int hf_jnx_itch_tick_size = -1;
 static int hf_jnx_itch_price_start = -1;
+static int hf_jnx_itch_price_decimals = -1;
 static int hf_jnx_itch_upper_price_limit = -1;
-static int hf_jnx_itch_lower_price_limit = -1;*/
+static int hf_jnx_itch_lower_price_limit = -1;
 
 static int hf_jnx_itch_system_event = -1;
 static int hf_jnx_itch_second = -1;
@@ -285,6 +286,12 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 'L':
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_tick_size_table, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        offset += 4;
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_tick_size, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        offset += 4;
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_price_start, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        offset += 4;
         break;
 
     case 'R': /* Stock Directory */
@@ -293,6 +300,16 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_isin, tvb, offset, 12, ENC_ASCII|ENC_NA);
         offset += 12;
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
+        offset += 4;
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_round_lot_size, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        offset += 4;
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_tick_size_table, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        offset += 4;
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_price_decimals, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        offset += 4;
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_upper_price_limit, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+        offset += 4;
+        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_lower_price_limit, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
         offset += 4;
         break;
 
@@ -397,15 +414,45 @@ proto_register_jnx_itch(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Denotes the security ISIN for the issue.", HFILL }},
 
+    { &hf_jnx_itch_tick_size_table,
+      { "Tick Size Table",         "jnx_itch.tick_size_table",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Price tick size table identifier.", HFILL }},
+
+    { &hf_jnx_itch_tick_size,
+      { "Tick Size",         "jnx_itch.tick_size",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Price tick size.", HFILL }},
+
+    { &hf_jnx_itch_price_start,
+      { "Price Start",         "jnx_itch.price_start",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Start of price range for this tick size.", HFILL }},
+
+    { &hf_jnx_itch_round_lot_size,
+      { "Round Lot Size",         "jnx_itch.round_lot_size",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Indicates the number of shares that represents a round lot for the security.", HFILL }},
+
+    { &hf_jnx_itch_price_decimals,
+      { "Price Decimals",         "jnx_itch.price_decimals",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Number of decimal places in the price field.", HFILL }},
+
+    { &hf_jnx_itch_upper_price_limit,
+      { "Upper Price Limit",         "jnx_itch.upper_price_limit",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Maximum tradable price", HFILL }},
+
+    { &hf_jnx_itch_lower_price_limit,
+      { "Lower Price Limit",         "jnx_itch.upper_lower_limit",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Minimum tradable price", HFILL }},
+
     { &hf_jnx_itch_group,
       { "Group",         "jnx_itch.group",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Security group identifier", HFILL }},
-
-    { &hf_jnx_itch_round_lot_size,
-      { "Round Lot Size",         "jnx_itch.round_lot_size",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
 
     { &hf_jnx_itch_trading_state,
       { "Trading State",         "jnx_itch.trading_state",
