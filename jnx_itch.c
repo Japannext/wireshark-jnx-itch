@@ -189,6 +189,22 @@ stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 
 /* -------------------------- */
 static int
+jnx_proto_tree_add_char(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_tree, int hf_field, const value_string *v_str, int offset)
+{
+  char *vl;
+
+  vl = tvb_get_ephemeral_string(tvb, offset, 1);
+  proto_tree_add_string_format_value(jnx_tree, hf_field, tvb,
+        offset, 1, vl, "%s (%s)", vl, val_to_str_const(*vl, v_str, "Unknown"));
+  if ( pinfo != NULL && PINFO_COL(pinfo) ){
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", vl);
+  }
+
+  return offset + 1;
+}
+
+/* -------------------------- */
+static int
 order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 {
   gint col_info = PINFO_COL(pinfo);
@@ -268,8 +284,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset = jnx_proto_tree_add_char(tvb, NULL, jnx_itch_tree, hf_jnx_itch_message_type, message_types_val, offset);
 
     switch (jnx_itch_type) {
     case 'T': /* seconds */
@@ -280,8 +295,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
         offset += 4;
-        proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_system_event, tvb, offset, 1, BIG_ENDIAN);
-        offset++;
+        offset = jnx_proto_tree_add_char(tvb, NULL, jnx_itch_tree, hf_jnx_itch_system_event, system_event_val, offset);
         break;
 
     case 'L':
@@ -318,8 +332,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = stock(tvb, pinfo, jnx_itch_tree, offset);
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
         offset += 4;
-        proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_trading_state, tvb, offset, 1, BIG_ENDIAN);
-        offset++;
+        offset = jnx_proto_tree_add_char(tvb, NULL, jnx_itch_tree, hf_jnx_itch_trading_state, trading_state_val, offset);
         break;
 
     case 'A': /* Add order, no MPID */
@@ -386,7 +399,7 @@ proto_register_jnx_itch(void)
     static hf_register_info hf[] = {
     { &hf_jnx_itch_message_type,
       { "Message Type",         "jnx_itch.message_type",
-        FT_UINT8, BASE_DEC, VALS(message_types_val), 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_second,
@@ -401,7 +414,7 @@ proto_register_jnx_itch(void)
 
     { &hf_jnx_itch_system_event,
       { "System Event",         "jnx_itch.system_event",
-        FT_UINT8, BASE_DEC, VALS(system_event_val), 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_stock,
@@ -456,7 +469,7 @@ proto_register_jnx_itch(void)
 
     { &hf_jnx_itch_trading_state,
       { "Trading State",         "jnx_itch.trading_state",
-        FT_UINT8, BASE_DEC, VALS(trading_state_val), 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_order_reference_number,
