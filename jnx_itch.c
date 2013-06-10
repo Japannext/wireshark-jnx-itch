@@ -49,6 +49,12 @@ static const value_string trading_state_val[] = {
  { 0, NULL }
 };
 
+static const value_string buy_sell_val[] = {
+ { 'B', "Buy" },
+ { 'S', "Sell" },
+ { 0, NULL}
+};
+
 /* Initialize the protocol and registered fields */
 static int proto_jnx_itch = -1;
 static dissector_handle_t jnx_itch_handle;
@@ -207,17 +213,9 @@ jnx_proto_tree_add_char(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_tree,
 static int
 order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 {
-  gint col_info = PINFO_COL(pinfo);
-  guint8 value;
-
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_order_reference_number);
 
-  value = tvb_get_guint8(tvb, offset);
-  if (col_info) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%c ", value);
-  }
-  proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_buy_sell, tvb, offset, 1, ENC_ASCII|ENC_NA);
-  offset += 1;
+  offset = jnx_proto_tree_add_char(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_buy_sell, buy_sell_val, offset);
 
   offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, offset);
 
