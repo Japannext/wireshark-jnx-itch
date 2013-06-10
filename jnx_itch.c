@@ -272,7 +272,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         const gchar *rep = val_to_str(jnx_itch_type, message_types_val, "Unknown packet type (0x%02x) ");
         if (col_info) {
             col_clear(pinfo->cinfo, COL_INFO);
-            col_add_str(pinfo->cinfo, COL_INFO, rep);
+            col_add_fstr(pinfo->cinfo, COL_INFO,"%s ", rep);
         }
         if (tree) {
             ti = proto_tree_add_protocol_format(tree, proto_jnx_itch, tvb, offset, -1, "SBI Japannext TotalView-ITCH %s",
