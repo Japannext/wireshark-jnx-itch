@@ -20,16 +20,16 @@
 #include <ws_attributes.h>
 
 static const value_string message_types_val[] = {
- { 'A', "Add Order " },
- { 'U', "Order Replace " },
- { 'E', "Order Executed " },
- { 'T', "Second " },
- { 'D', "Order Delete " },
- { 'S', "System Event " },
- { 'L' , "Price Tick Size " },
- { 'R' , "Stock Directory " },
- { 'H', "Stock Trading Action " },
- { 'F', "Add Order with Attribution " },
+ { 'A', "Add Order" },
+ { 'U', "Order Replace" },
+ { 'E', "Order Executed" },
+ { 'T', "Second" },
+ { 'D', "Order Delete" },
+ { 'S', "System Event" },
+ { 'L', "Price Tick Size" },
+ { 'R', "Stock Directory" },
+ { 'H', "Stock Trading Action" },
+ { 'F', "Add Order with Attribution" },
  { 0, NULL }
 };
 
