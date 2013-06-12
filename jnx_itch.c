@@ -94,6 +94,9 @@ static int hf_jnx_itch_message = -1;
 
 static range_t *global_soupbintcp_port_range = NULL;
 static range_t *soupbintcp_port_range = NULL;
+static range_t *global_moldudp64_udp_range = NULL;
+static range_t *moldudp64_udp_range = NULL;
+
 
 #define PINFO_COL(a) (check_col((a)->cinfo, COL_INFO))
 
@@ -381,12 +384,25 @@ static void range_add_soupbintcp_port_callback(guint32 port) {
     dissector_add_uint("soupbintcp.port", port, jnx_itch_handle);
 }
 
+static void range_delete_moldudp64_tcp_callback(guint32 port) {
+    dissector_delete_uint("moldudp64.port", port, jnx_itch_handle);
+}
+
+static void range_add_moldudp64_tcp_callback(guint32 port) {
+    dissector_add_uint("moldudp64.port", port, jnx_itch_handle);
+}
+
 static void jnx_itch_prefs(void)
 {
     range_foreach(soupbintcp_port_range, range_delete_soupbintcp_port_callback);
     g_free(soupbintcp_port_range);
     soupbintcp_port_range = range_copy(global_soupbintcp_port_range);
     range_foreach(soupbintcp_port_range, range_add_soupbintcp_port_callback);
+
+    range_foreach(moldudp64_udp_range, range_delete_moldudp64_tcp_callback);
+    g_free(moldudp64_udp_range);
+    moldudp64_udp_range = range_copy(global_moldudp64_udp_range);
+    range_foreach(moldudp64_udp_range, range_add_moldudp64_tcp_callback);
 }
 
 void
@@ -544,6 +560,10 @@ proto_register_jnx_itch(void)
 
     prefs_register_range_preference(jnx_itch_module, "soupbintcp.port", "SoupBinTCP ports", "SoupBinTCP port range", &global_soupbintcp_port_range, 65535);
     soupbintcp_port_range = range_empty();
+
+    prefs_register_range_preference(jnx_itch_module, "udp.port", "MoldUDP64 UDP Ports", "MoldUDP64 UDP port to dissect on.", &global_moldudp64_udp_range, 65535);
+
+    moldudp64_udp_range = range_empty();
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
@@ -554,5 +574,4 @@ void
 proto_reg_handoff_jnx_itch(void)
 {
     jnx_itch_handle = create_dissector_handle(dissect_jnx_itch, proto_jnx_itch);
-    dissector_add_uint("soupbintcp.port", 0, jnx_itch_handle); /* for "decode-as" */
 }
