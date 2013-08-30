@@ -574,4 +574,6 @@ void
 proto_reg_handoff_jnx_itch(void)
 {
     jnx_itch_handle = create_dissector_handle(dissect_jnx_itch, proto_jnx_itch);
+    dissector_add_handle("soupbintcp.port", jnx_itch_handle); /* for "decode-as" */
+    dissector_add_handle("moldudp64.port", jnx_itch_handle); /* for "decode-as" */
 }
