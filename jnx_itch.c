@@ -30,6 +30,7 @@ static const value_string message_types_val[] = {
  { 'R', "Stock Directory" },
  { 'H', "Stock Trading Action" },
  { 'F', "Add Order with Attribution" },
+ { 'Y', "Short Selling Price Restriction Indicator" },
  { 0, NULL }
 };
 
