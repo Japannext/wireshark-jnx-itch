@@ -49,6 +49,12 @@ static const value_string trading_state_val[] = {
  { 0, NULL }
 };
 
+static const value_string price_restriction_state_val[] = {
+ { '0', "No price restriction" },
+ { '1', "Price restriction in effect" },
+ { 0, NULL }
+};
+
 static const value_string buy_sell_val[] = {
  { 'B', "Buy" },
  { 'S', "Sell" },
@@ -79,6 +85,7 @@ static int hf_jnx_itch_second = -1;
 static int hf_jnx_itch_nanoseconds = -1;
 
 static int hf_jnx_itch_trading_state = -1;
+static int hf_jnx_itch_price_restriction_state = -1;
 static int hf_jnx_itch_order_reference_number = -1;
 static int hf_jnx_itch_original_order_reference_number = -1;
 static int hf_jnx_itch_new_order_reference_number = -1;
@@ -336,6 +343,14 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = proto_tree_add_char(jnx_itch_tree, hf_jnx_itch_trading_state, tvb, offset, trading_state_val);
         break;
 
+    case 'Y': /* Short Selling Price Restriction Indicator */
+        offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
+        offset = stock(tvb, pinfo, jnx_itch_tree, offset);
+        proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
+        offset += 4;
+        offset = proto_tree_add_char(jnx_itch_tree, hf_jnx_itch_price_restriction_state, tvb, offset, price_restriction_state_val);
+        break;
+
     case 'A': /* Add order, no MPID */
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
         offset = order(tvb, pinfo, jnx_itch_tree, offset);
@@ -483,6 +498,11 @@ proto_register_jnx_itch(void)
 
     { &hf_jnx_itch_trading_state,
       { "Trading State",         "jnx_itch.trading_state",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    { &hf_jnx_itch_price_restriction_state,
+      { "Price Restriction State", "jnx_itch.price_restriction_state",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
