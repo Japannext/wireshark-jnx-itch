@@ -106,21 +106,15 @@ static range_t *global_moldudp64_udp_range = NULL;
 static range_t *moldudp64_udp_range = NULL;
 
 
-#define PINFO_COL(a) (check_col((a)->cinfo, COL_INFO))
-
 /* ---------------------- */
 static int
 order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset, int col)
 {
-  gint col_info = PINFO_COL(pinfo);
-
-  if (jnx_itch_tree || col_info) {
+  if (jnx_itch_tree) {
       guint64 value = tvb_get_ntoh64(tvb, offset);
 
       proto_tree_add_uint64(jnx_itch_tree, col, tvb, offset, 8, value);
-      if (col_info) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, " %lu", value);
-      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %lu", value);
   }
   return offset + 8;
 }
@@ -129,15 +123,11 @@ order_ref_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, i
 static int
 match_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset, int col)
 {
-  gint col_info = PINFO_COL(pinfo);
-
-  if (jnx_itch_tree || col_info) {
+  if (jnx_itch_tree) {
       guint64 value = tvb_get_ntoh64(tvb, offset);
 
       proto_tree_add_uint64(jnx_itch_tree, col, tvb, offset, 8, value);
-      if (col_info) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, " %lu", value);
-      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, " %lu", value);
   }
   return offset + 8;
 }
@@ -158,15 +148,11 @@ timestamp(tvbuff_t *tvb, proto_tree *jnx_itch_tree, int id, int offset)
 static int
 number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int offset)
 {
-  gint col_info = PINFO_COL(pinfo);
-
-  if (jnx_itch_tree || col_info) {
+  if (jnx_itch_tree) {
       guint32 value = tvb_get_ntohl(tvb, offset);
 
       proto_tree_add_uint(jnx_itch_tree, id, tvb, offset, 4, value);
-      if (col_info) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, " qty %u", value);
-      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, " qty %u", value);
   }
   return offset + 4;
 }
@@ -175,15 +161,11 @@ number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, i
 static int
 price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int offset)
 {
-  gint col_info = PINFO_COL(pinfo);
-
-  if (jnx_itch_tree || col_info) {
+  if (jnx_itch_tree) {
       gdouble value = tvb_get_ntohl(tvb, offset) / 10.0;
 
       proto_tree_add_double(jnx_itch_tree, id, tvb, offset, 4, value);
-      if (col_info) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, " price %g", value);
-      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, " price %g", value);
   }
   return offset + 4;
 }
@@ -192,14 +174,11 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int 
 static int
 stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 {
-  gint col_info = PINFO_COL(pinfo);
-  if (jnx_itch_tree || col_info) {
+  if (jnx_itch_tree) {
       guint32 stock_id = tvb_get_ntohl(tvb, offset);
 
       proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_stock, tvb, offset, 4, stock_id);
-      if (col_info) {
-          col_append_fstr(pinfo->cinfo, COL_INFO, " <%d>", stock_id);
-      }
+      col_append_fstr(pinfo->cinfo, COL_INFO, " <%d>", stock_id);
   }
   return offset + 4;
 }
@@ -223,9 +202,7 @@ order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 {
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_order_reference_number);
 
-  if(PINFO_COL(pinfo)){
-      col_append_fstr(pinfo->cinfo, COL_INFO, " %c", tvb_get_guint8(tvb, offset));
-  }
+  col_append_fstr(pinfo->cinfo, COL_INFO, " %c", tvb_get_guint8(tvb, offset));
   offset = proto_tree_add_char(jnx_itch_tree, hf_jnx_itch_buy_sell, tvb, offset, buy_sell_val);
 
   offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, offset);
@@ -271,20 +248,15 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *jnx_itch_tree = NULL;
     guint8 jnx_itch_type;
     int  offset = 0;
-    gint col_info;
-
-    col_info = PINFO_COL(pinfo);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBI Japannext ITCH-TotalView");
 
     jnx_itch_type = tvb_get_guint8(tvb, offset);
 
-    if (col_info || tree) {
+    if (tree) {
         const gchar *rep = val_to_str(jnx_itch_type, message_types_val, "Unknown packet type (0x%02x) ");
-        if (col_info) {
-            col_clear(pinfo->cinfo, COL_INFO);
-            col_add_str(pinfo->cinfo, COL_INFO, rep);
-        }
+        col_clear(pinfo->cinfo, COL_INFO);
+        col_add_str(pinfo->cinfo, COL_INFO, rep);
         if (tree) {
             ti = proto_tree_add_protocol_format(tree, proto_jnx_itch, tvb, offset, -1, "SBI Japannext TotalView-ITCH %s",
                                                 rep);
