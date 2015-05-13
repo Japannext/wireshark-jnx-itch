@@ -189,7 +189,7 @@ proto_tree_add_char(proto_tree *jnx_tree, int hf_field, tvbuff_t *tvb, int offse
 {
   char *vl;
 
-  vl = tvb_get_ephemeral_string(tvb, offset, 1);
+  vl = tvb_get_string(wmem_packet_scope(), tvb, offset, 1);
   proto_tree_add_string_format_value(jnx_tree, hf_field, tvb,
         offset, 1, vl, "%s (%s)", vl, val_to_str_const(*vl, v_str, "Unknown"));
 
