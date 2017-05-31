@@ -373,11 +373,11 @@ static void range_add_soupbintcp_port_callback(guint32 port) {
 }
 
 static void range_delete_moldudp64_tcp_callback(guint32 port) {
-    dissector_delete_uint("moldudp64.port", port, jnx_itch_handle);
+    dissector_delete_uint("moldudp64.payload", port, jnx_itch_handle);
 }
 
 static void range_add_moldudp64_tcp_callback(guint32 port) {
-    dissector_add_uint("moldudp64.port", port, jnx_itch_handle);
+    dissector_add_uint("moldudp64.payload", port, jnx_itch_handle);
 }
 
 static void jnx_itch_prefs(void)
@@ -568,5 +568,5 @@ proto_reg_handoff_jnx_itch(void)
 {
     jnx_itch_handle = create_dissector_handle(dissect_jnx_itch, proto_jnx_itch);
     dissector_add_for_decode_as("tcp.port", jnx_itch_handle); /* for "decode-as" */
-    dissector_add_for_decode_as("moldudp64.port", jnx_itch_handle); /* for "decode-as" */
+    dissector_add_for_decode_as("moldudp64.payload", jnx_itch_handle); /* for "decode-as" */
 }
