@@ -365,11 +365,11 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 static void range_delete_soupbintcp_port_callback(guint32 port) {
-    dissector_delete_uint("soupbintcp.port", port, jnx_itch_handle);
+    dissector_delete_uint("tcp.port", port, jnx_itch_handle);
 }
 
 static void range_add_soupbintcp_port_callback(guint32 port) {
-    dissector_add_uint("soupbintcp.port", port, jnx_itch_handle);
+    dissector_add_uint("tcp.port", port, jnx_itch_handle);
 }
 
 static void range_delete_moldudp64_tcp_callback(guint32 port) {
@@ -551,7 +551,7 @@ proto_register_jnx_itch(void)
 
     jnx_itch_module = prefs_register_protocol(proto_jnx_itch, jnx_itch_prefs);
 
-    prefs_register_range_preference(jnx_itch_module, "soupbintcp.port", "SoupBinTCP ports", "SoupBinTCP port range", &global_soupbintcp_port_range, 65535);
+    prefs_register_range_preference(jnx_itch_module, "tcp.port", "SoupBinTCP ports", "SoupBinTCP port range", &global_soupbintcp_port_range, 65535);
     soupbintcp_port_range = range_empty();
 
     prefs_register_range_preference(jnx_itch_module, "udp.port", "MoldUDP64 UDP Ports", "MoldUDP64 UDP port to dissect on.", &global_moldudp64_udp_range, 65535);
@@ -567,6 +567,6 @@ void
 proto_reg_handoff_jnx_itch(void)
 {
     jnx_itch_handle = create_dissector_handle(dissect_jnx_itch, proto_jnx_itch);
-    dissector_add_for_decode_as("soupbintcp.port", jnx_itch_handle); /* for "decode-as" */
+    dissector_add_for_decode_as("tcp.port", jnx_itch_handle); /* for "decode-as" */
     dissector_add_for_decode_as("moldudp64.port", jnx_itch_handle); /* for "decode-as" */
 }
