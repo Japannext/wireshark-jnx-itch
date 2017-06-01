@@ -393,6 +393,102 @@ static void jnx_itch_prefs(void)
     range_foreach(moldudp64_udp_range, range_add_moldudp64_tcp_callback);
 }
 
+/** Returns a guess if a packet is OUCH or not
+ *
+ * Since SOUP doesn't have a sub-protocol type flag, we have to use a
+ * heuristic decision to determine if the contained protocol is OUCH
+ * or ITCH (or something else entirely).  We look at the message type
+ * code, and since we know that we're being called from SOUP, we can
+ * check the passed-in length too: if the type code and the length
+ * match, we guess at ITCH. */
+static gboolean
+dissect_jnx_itch_heur(
+    tvbuff_t *tvb,
+    packet_info *pinfo,
+    proto_tree *tree,
+    void *data _U_)
+{
+    guint8 msg_type = tvb_get_guint8(tvb, 0);
+    guint msg_len = tvb_reported_length(tvb);
+
+    switch (msg_type) {
+    case 'T': /* seconds */
+        if (msg_len != 5) {
+            return FALSE;
+        }
+        break;
+
+    case 'S': /* system event */
+        if (msg_len != 10) {
+            return FALSE;
+        }
+        break;
+
+    case 'L': /* Price Tick Size */
+        if (msg_len != 17) {
+            return FALSE;
+        }
+        break;
+
+    case 'R': /* Stock Directory */
+        if (msg_len != 45 ) {
+            return FALSE;
+        }
+        break;
+
+    case 'H': /* Stock trading action */
+        if (msg_len != 14) {
+            return FALSE;
+        }
+        break;
+
+    case 'Y': /* Short Selling Price Restriction Indicator */
+        if (msg_len != 14) {
+            return FALSE;
+        }
+        break;
+
+    case 'A': /* Add order, no Attributes */
+        if (msg_len != 30) {
+            return FALSE;
+        }
+        break;
+
+    case 'F': /* Add order, with Attributes */
+        if (msg_len != 35) {
+            return FALSE;
+        }
+        break;
+
+    case 'E' : /* Order executed */
+        if (msg_len != 25) {
+            return FALSE;
+        }
+        break;
+
+    case 'D' : /* Order delete */
+        if (msg_len != 13) {
+            return FALSE;
+        }
+        break;
+
+    case 'U': /* Order replaced */
+        if (msg_len != 29) {
+            return FALSE;
+        }
+        break;
+
+    default:
+        /* Not a known ITCH message code */
+        return FALSE;
+    }
+
+    /* Perform dissection of this (initial) packet */
+    dissect_jnx_itch(tvb, pinfo, tree);
+
+    return TRUE;
+}
+
 void
 proto_register_jnx_itch(void)
 {
@@ -567,6 +663,6 @@ void
 proto_reg_handoff_jnx_itch(void)
 {
     jnx_itch_handle = create_dissector_handle(dissect_jnx_itch, proto_jnx_itch);
-    dissector_add_for_decode_as("tcp.port", jnx_itch_handle); /* for "decode-as" */
+    heur_dissector_add("soupbintcp", dissect_jnx_itch_heur, "ITCH over SoupBinTCP", "jnx_itch_soupbintcp", proto_jnx_itch, HEURISTIC_ENABLE);
     dissector_add_for_decode_as("moldudp64.payload", jnx_itch_handle); /* for "decode-as" */
 }
