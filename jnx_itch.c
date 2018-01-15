@@ -19,6 +19,18 @@
 #include <epan/proto.h>
 #include <ws_attributes.h>
 
+#define TIMESTAMP_SECONDS_MSG_LEN 5
+#define SYSTEM_EVENT_MSG_LEN 10
+#define PRICE_TICK_SIZE_MSG_LEN 17
+#define ORDERBOOK_DIRECTORY_MSG_LEN 45
+#define TRADING_STATE_MSG_LEN 14
+#define SHORT_SELLING_PRICE_RESTRICTION_STATE_MSG_LEN 14
+#define ADD_ORDER_MSG_LEN 30
+#define ADD_ORDER_WITH_ATTRIBUTES_MSG_LEN 35
+#define ORDER_EXECUTED_MSG_LEN 25
+#define ORDER_DELETED_MSG_LEN 13
+#define ORDER_REPLACED_MSG_LEN 29
+
 static const value_string message_types_val[] = {
  { 'A', "Add Order" },
  { 'U', "Order Replace" },
@@ -413,67 +425,67 @@ dissect_jnx_itch_heur(
 
     switch (msg_type) {
     case 'T': /* seconds */
-        if (msg_len != 5) {
+        if (msg_len != TIMESTAMP_SECONDS_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'S': /* system event */
-        if (msg_len != 10) {
+        if (msg_len != SYSTEM_EVENT_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'L': /* Price Tick Size */
-        if (msg_len != 17) {
+        if (msg_len != PRICE_TICK_SIZE_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'R': /* Stock Directory */
-        if (msg_len != 45 ) {
+        if (msg_len != ORDERBOOK_DIRECTORY_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'H': /* Stock trading action */
-        if (msg_len != 14) {
+        if (msg_len != TRADING_STATE_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'Y': /* Short Selling Price Restriction Indicator */
-        if (msg_len != 14) {
+        if (msg_len != SHORT_SELLING_PRICE_RESTRICTION_STATE_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'A': /* Add order, no Attributes */
-        if (msg_len != 30) {
+        if (msg_len != ADD_ORDER_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'F': /* Add order, with Attributes */
-        if (msg_len != 35) {
+        if (msg_len != ADD_ORDER_WITH_ATTRIBUTES_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'E' : /* Order executed */
-        if (msg_len != 25) {
+        if (msg_len != ORDER_EXECUTED_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'D' : /* Order delete */
-        if (msg_len != 13) {
+        if (msg_len != ORDER_DELETED_MSG_LEN) {
             return FALSE;
         }
         break;
 
     case 'U': /* Order replaced */
-        if (msg_len != 29) {
+        if (msg_len != ORDER_REPLACED_MSG_LEN) {
             return FALSE;
         }
         break;
