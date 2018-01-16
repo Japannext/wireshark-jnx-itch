@@ -424,67 +424,67 @@ dissect_jnx_itch_heur(
     guint msg_len = tvb_reported_length(tvb);
 
     switch (msg_type) {
-    case 'T': /* seconds */
+    case 'T':
         if (msg_len != TIMESTAMP_SECONDS_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'S': /* system event */
+    case 'S':
         if (msg_len != SYSTEM_EVENT_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'L': /* Price Tick Size */
+    case 'L':
         if (msg_len != PRICE_TICK_SIZE_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'R': /* Stock Directory */
+    case 'R':
         if (msg_len != ORDERBOOK_DIRECTORY_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'H': /* Stock trading action */
+    case 'H':
         if (msg_len != TRADING_STATE_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'Y': /* Short Selling Price Restriction Indicator */
+    case 'Y':
         if (msg_len != SHORT_SELLING_PRICE_RESTRICTION_STATE_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'A': /* Add order, no Attributes */
+    case 'A':
         if (msg_len != ADD_ORDER_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'F': /* Add order, with Attributes */
+    case 'F':
         if (msg_len != ADD_ORDER_WITH_ATTRIBUTES_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'E' : /* Order executed */
+    case 'E' :
         if (msg_len != ORDER_EXECUTED_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'D' : /* Order delete */
+    case 'D' :
         if (msg_len != ORDER_DELETED_MSG_LEN) {
             return FALSE;
         }
         break;
 
-    case 'U': /* Order replaced */
+    case 'U':
         if (msg_len != ORDER_REPLACED_MSG_LEN) {
             return FALSE;
         }
