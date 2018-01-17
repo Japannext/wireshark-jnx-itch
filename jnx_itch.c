@@ -252,6 +252,29 @@ executed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offse
   return offset;
 }
 
+/* -------------------------- */
+static int
+orderbook_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
+{
+  offset = stock(tvb, pinfo, jnx_itch_tree, offset);
+  proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_isin, tvb, offset, 12, ENC_ASCII|ENC_NA);
+  offset += 12;
+  proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
+  offset += 4;
+  proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_round_lot_size, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+  offset += 4;
+  proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_tick_size_table, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+  offset += 4;
+  proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_price_decimals, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+  offset += 4;
+  proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_upper_price_limit, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+  offset += 4;
+  proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_lower_price_limit, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+  offset += 4;
+
+  return offset;
+}
+
 /* ---------------------------- */
 static void
 dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -303,21 +326,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 'R': /* Stock Directory */
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
-        offset = stock(tvb, pinfo, jnx_itch_tree, offset);
-        proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_isin, tvb, offset, 12, ENC_ASCII|ENC_NA);
-        offset += 12;
-        proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
-        offset += 4;
-        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_round_lot_size, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
-        offset += 4;
-        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_tick_size_table, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
-        offset += 4;
-        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_price_decimals, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
-        offset += 4;
-        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_upper_price_limit, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
-        offset += 4;
-        proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_lower_price_limit, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
-        offset += 4;
+        offset = orderbook_directory(tvb, pinfo, jnx_itch_tree, offset);
         break;
 
     case 'H': /* Stock trading action */
