@@ -31,6 +31,13 @@
 #define ORDER_DELETED_MSG_LEN 13
 #define ORDER_REPLACED_MSG_LEN 29
 
+// 8 byte Quantity fields
+#define ORDERBOOK_DIRECTORY_MSG_LEN_64 53
+#define ADD_ORDER_MSG_LEN_64 34
+#define ADD_ORDER_WITH_ATTRIBUTES_MSG_LEN_64 39
+#define ORDER_EXECUTED_MSG_LEN_64 29
+#define ORDER_REPLACED_MSG_LEN_64 33
+
 static const value_string message_types_val[] = {
  { 'A', "Add Order" },
  { 'U', "Order Replace" },
@@ -86,10 +93,12 @@ static int hf_jnx_itch_group = -1;
 static int hf_jnx_itch_isin = -1;
 static int hf_jnx_itch_stock = -1;
 static int hf_jnx_itch_round_lot_size = -1;
+static int hf_jnx_itch_round_lot_size_64 = -1;
 static int hf_jnx_itch_tick_size_table = -1;
 static int hf_jnx_itch_tick_size = -1;
 static int hf_jnx_itch_price_start = -1;
 static int hf_jnx_itch_price_decimals = -1;
+static int hf_jnx_itch_quantity_decimals = -1;
 static int hf_jnx_itch_upper_price_limit = -1;
 static int hf_jnx_itch_lower_price_limit = -1;
 
@@ -104,10 +113,12 @@ static int hf_jnx_itch_original_order_reference_number = -1;
 static int hf_jnx_itch_new_order_reference_number = -1;
 static int hf_jnx_itch_buy_sell = -1;
 static int hf_jnx_itch_shares = -1;
+static int hf_jnx_itch_shares_64 = -1;
 static int hf_jnx_itch_price = -1;
 static int hf_jnx_itch_attribution = -1;
 static int hf_jnx_itch_order_type = -1;
 static int hf_jnx_itch_executed = -1;
+static int hf_jnx_itch_executed_64 = -1;
 static int hf_jnx_itch_match_number = -1;
 
 static int hf_jnx_itch_message = -1;
@@ -117,6 +128,65 @@ static range_t *soupbintcp_port_range = NULL;
 static range_t *global_moldudp64_udp_range = NULL;
 static range_t *moldudp64_udp_range = NULL;
 
+/* -------------------------- */
+static gboolean
+detect_32bit_message(tvbuff_t *tvb)
+{
+    guint8 msg_type = tvb_get_guint8(tvb, 0);
+    guint msg_len = tvb_reported_length(tvb);
+
+    switch (msg_type) {
+    case 'T':
+        return msg_len == TIMESTAMP_SECONDS_MSG_LEN;
+    case 'S':
+        return msg_len == SYSTEM_EVENT_MSG_LEN;
+    case 'L':
+        return msg_len == PRICE_TICK_SIZE_MSG_LEN;
+    case 'R':
+        return msg_len == ORDERBOOK_DIRECTORY_MSG_LEN;
+    case 'H':
+        return msg_len == TRADING_STATE_MSG_LEN;
+    case 'Y':
+        return msg_len == SHORT_SELLING_PRICE_RESTRICTION_STATE_MSG_LEN;
+    case 'A':
+        return msg_len == ADD_ORDER_MSG_LEN;
+    case 'F':
+        return msg_len == ADD_ORDER_WITH_ATTRIBUTES_MSG_LEN;
+    case 'E' :
+        return msg_len == ORDER_EXECUTED_MSG_LEN;
+    case 'D' :
+        return msg_len == ORDER_DELETED_MSG_LEN;
+    case 'U':
+        return msg_len == ORDER_REPLACED_MSG_LEN;
+    default:
+        break;
+    }
+    return FALSE;
+}
+
+/* -------------------------- */
+static gboolean
+detect_64bit_message(tvbuff_t *tvb)
+{
+    guint8 msg_type = tvb_get_guint8(tvb, 0);
+    guint16 msg_len = tvb_reported_length(tvb);
+
+    switch (msg_type) {
+    case 'R':
+        return msg_len == ORDERBOOK_DIRECTORY_MSG_LEN_64;
+    case 'A':
+        return msg_len == ADD_ORDER_MSG_LEN_64;
+    case 'F':
+        return msg_len == ADD_ORDER_WITH_ATTRIBUTES_MSG_LEN_64;
+    case 'U':
+        return msg_len == ORDER_REPLACED_MSG_LEN_64;
+    case 'E':
+        return msg_len == ORDER_EXECUTED_MSG_LEN_64;
+    default:
+        break;
+    }
+    return FALSE;
+}
 
 /* ---------------------- */
 static int
@@ -158,15 +228,25 @@ timestamp(tvbuff_t *tvb, proto_tree *jnx_itch_tree, int id, int offset)
 
 /* -------------------------- */
 static int
-number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int offset)
+number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int id_64, int offset)
 {
-  if (jnx_itch_tree) {
-      guint32 value = tvb_get_ntohl(tvb, offset);
+    if (jnx_itch_tree) {
+        if (detect_64bit_message(tvb)) {
+            guint64 value = tvb_get_ntoh64(tvb, offset);
 
-      proto_tree_add_uint(jnx_itch_tree, id, tvb, offset, 4, value);
-      col_append_fstr(pinfo->cinfo, COL_INFO, " qty %u", value);
-  }
-  return offset + 4;
+            proto_tree_add_uint64(jnx_itch_tree, id_64, tvb, offset, 8, value);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " qty %lu", value);
+            offset += 8;
+        }
+        else {
+            guint32 value = tvb_get_ntohl(tvb, offset);
+
+            proto_tree_add_uint(jnx_itch_tree, id, tvb, offset, 4, value);
+            col_append_fstr(pinfo->cinfo, COL_INFO, " qty %u", value);
+            offset += 4;
+        }
+    }
+    return offset;
 }
 
 /* -------------------------- */
@@ -217,7 +297,7 @@ order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
   col_append_fstr(pinfo->cinfo, COL_INFO, " %c", tvb_get_guint8(tvb, offset));
   offset = proto_tree_add_char(jnx_itch_tree, hf_jnx_itch_buy_sell, tvb, offset, buy_sell_val);
 
-  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, offset);
+  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, hf_jnx_itch_shares_64, offset);
 
   offset = stock(tvb, pinfo, jnx_itch_tree, offset);
 
@@ -233,7 +313,7 @@ replace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset
 {
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_original_order_reference_number);
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_new_order_reference_number);
-  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, offset);
+  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, hf_jnx_itch_shares_64, offset);
   offset = price(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_price, offset);
 
   return offset;
@@ -245,7 +325,7 @@ executed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offse
 {
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_order_reference_number);
 
-  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_executed, offset);
+  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_executed, hf_jnx_itch_executed_64, offset);
 
   offset = match_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_match_number);
 
@@ -261,8 +341,14 @@ orderbook_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree
   offset += 12;
   proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
   offset += 4;
-  proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_round_lot_size, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
-  offset += 4;
+  if (detect_64bit_message(tvb)) {
+    proto_tree_add_uint64(jnx_itch_tree, hf_jnx_itch_round_lot_size_64, tvb, offset, 8, tvb_get_ntoh64(tvb, offset));
+    offset += 8;
+  }
+  else {
+    proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_round_lot_size, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+    offset += 4;
+  }
   proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_tick_size_table, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
   offset += 4;
   proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_price_decimals, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
@@ -271,6 +357,10 @@ orderbook_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree
   offset += 4;
   proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_lower_price_limit, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
   offset += 4;
+  if (detect_64bit_message(tvb)) {
+    proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_quantity_decimals, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
+    offset += 4;
+  }
 
   return offset;
 }
@@ -429,80 +519,8 @@ dissect_jnx_itch_heur(
     proto_tree *tree,
     void *data _U_)
 {
-    guint8 msg_type = tvb_get_guint8(tvb, 0);
-    guint msg_len = tvb_reported_length(tvb);
-
-    switch (msg_type) {
-    case 'T':
-        if (msg_len != TIMESTAMP_SECONDS_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'S':
-        if (msg_len != SYSTEM_EVENT_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'L':
-        if (msg_len != PRICE_TICK_SIZE_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'R':
-        if (msg_len != ORDERBOOK_DIRECTORY_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'H':
-        if (msg_len != TRADING_STATE_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'Y':
-        if (msg_len != SHORT_SELLING_PRICE_RESTRICTION_STATE_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'A':
-        if (msg_len != ADD_ORDER_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'F':
-        if (msg_len != ADD_ORDER_WITH_ATTRIBUTES_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'E' :
-        if (msg_len != ORDER_EXECUTED_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'D' :
-        if (msg_len != ORDER_DELETED_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    case 'U':
-        if (msg_len != ORDER_REPLACED_MSG_LEN) {
-            return FALSE;
-        }
-        break;
-
-    default:
-        /* Not a known ITCH message code */
+    if (!detect_32bit_message(tvb) && !detect_64bit_message(tvb))
         return FALSE;
-    }
 
     /* Perform dissection of this (initial) packet */
     dissect_jnx_itch(tvb, pinfo, tree);
@@ -566,10 +584,20 @@ proto_register_jnx_itch(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Indicates the number of shares that represents a round lot for the security.", HFILL }},
 
+    { &hf_jnx_itch_round_lot_size_64,
+      { "Round Lot Size",         "jnx_itch.round_lot_size",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        "Indicates the number of shares that represents a round lot for the security.", HFILL }},
+
     { &hf_jnx_itch_price_decimals,
       { "Price Decimals",         "jnx_itch.price_decimals",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Number of decimal places in the price field.", HFILL }},
+
+    { &hf_jnx_itch_quantity_decimals,
+      { "Quantity Decimals",         "jnx_itch.quantity_decimals",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        "Number of decimal places in quantity fields.", HFILL }},
 
     { &hf_jnx_itch_upper_price_limit,
       { "Upper Price Limit",         "jnx_itch.upper_price_limit",
@@ -621,6 +649,11 @@ proto_register_jnx_itch(void)
         FT_UINT32, BASE_DEC,  NULL, 0x0,
         "Number of shares", HFILL }},
 
+    { &hf_jnx_itch_shares_64,
+      { "Shares",         "jnx_itch.shares",
+        FT_UINT64, BASE_DEC,  NULL, 0x0,
+        "Number of shares", HFILL }},
+
     { &hf_jnx_itch_price,
       { "Price",         "jnx_itch.price",
         FT_DOUBLE, BASE_NONE, NULL, 0x0,
@@ -639,6 +672,11 @@ proto_register_jnx_itch(void)
     { &hf_jnx_itch_executed,
       { "Executed Shares",         "jnx_itch.executed",
         FT_UINT32, BASE_DEC,  NULL, 0x0,
+        "Number of shares executed", HFILL }},
+
+    { &hf_jnx_itch_executed_64,
+      { "Executed Shares",         "jnx_itch.executed",
+        FT_UINT64, BASE_DEC,  NULL, 0x0,
         "Number of shares executed", HFILL }},
 
     { &hf_jnx_itch_match_number,
