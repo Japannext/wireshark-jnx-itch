@@ -112,8 +112,8 @@ static int hf_jnx_itch_order_reference_number = -1;
 static int hf_jnx_itch_original_order_reference_number = -1;
 static int hf_jnx_itch_new_order_reference_number = -1;
 static int hf_jnx_itch_buy_sell = -1;
-static int hf_jnx_itch_shares = -1;
-static int hf_jnx_itch_shares_64 = -1;
+static int hf_jnx_itch_quantity = -1;
+static int hf_jnx_itch_quantity_64 = -1;
 static int hf_jnx_itch_price = -1;
 static int hf_jnx_itch_attribution = -1;
 static int hf_jnx_itch_order_type = -1;
@@ -228,7 +228,7 @@ timestamp(tvbuff_t *tvb, proto_tree *jnx_itch_tree, int id, int offset)
 
 /* -------------------------- */
 static int
-number_of_shares(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int id_64, int offset)
+quantity(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int id_64, int offset)
 {
     if (jnx_itch_tree) {
         if (detect_64bit_message(tvb)) {
@@ -297,7 +297,7 @@ order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
   col_append_fstr(pinfo->cinfo, COL_INFO, " %c", tvb_get_guint8(tvb, offset));
   offset = proto_tree_add_char(jnx_itch_tree, hf_jnx_itch_buy_sell, tvb, offset, buy_sell_val);
 
-  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, hf_jnx_itch_shares_64, offset);
+  offset = quantity(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_quantity, hf_jnx_itch_quantity_64, offset);
 
   offset = stock(tvb, pinfo, jnx_itch_tree, offset);
 
@@ -313,7 +313,7 @@ replace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset
 {
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_original_order_reference_number);
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_new_order_reference_number);
-  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_shares, hf_jnx_itch_shares_64, offset);
+  offset = quantity(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_quantity, hf_jnx_itch_quantity_64, offset);
   offset = price(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_price, offset);
 
   return offset;
@@ -325,7 +325,7 @@ executed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offse
 {
   offset = order_ref_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_order_reference_number);
 
-  offset = number_of_shares(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_executed, hf_jnx_itch_executed_64, offset);
+  offset = quantity(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_executed, hf_jnx_itch_executed_64, offset);
 
   offset = match_number(tvb, pinfo, jnx_itch_tree, offset, hf_jnx_itch_match_number);
 
@@ -582,12 +582,12 @@ proto_register_jnx_itch(void)
     { &hf_jnx_itch_round_lot_size,
       { "Round Lot Size",         "jnx_itch.round_lot_size",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Indicates the number of shares that represents a round lot for the security.", HFILL }},
+        "The quantity that represents a round lot.", HFILL }},
 
     { &hf_jnx_itch_round_lot_size_64,
       { "Round Lot Size",         "jnx_itch.round_lot_size",
         FT_UINT64, BASE_DEC, NULL, 0x0,
-        "Indicates the number of shares that represents a round lot for the security.", HFILL }},
+        "The quantity that represents a round lot.", HFILL }},
 
     { &hf_jnx_itch_price_decimals,
       { "Price Decimals",         "jnx_itch.price_decimals",
@@ -644,15 +644,15 @@ proto_register_jnx_itch(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         "Buy/Sell indicator", HFILL }},
 
-    { &hf_jnx_itch_shares,
-      { "Shares",         "jnx_itch.shares",
+    { &hf_jnx_itch_quantity,
+      { "Quantity",         "jnx_itch.quantity",
         FT_UINT32, BASE_DEC,  NULL, 0x0,
-        "Number of shares", HFILL }},
+        "Quantity", HFILL }},
 
-    { &hf_jnx_itch_shares_64,
-      { "Shares",         "jnx_itch.shares",
+    { &hf_jnx_itch_quantity_64,
+      { "Quantity",         "jnx_itch.quantity",
         FT_UINT64, BASE_DEC,  NULL, 0x0,
-        "Number of shares", HFILL }},
+        "Quantity", HFILL }},
 
     { &hf_jnx_itch_price,
       { "Price",         "jnx_itch.price",
@@ -670,14 +670,14 @@ proto_register_jnx_itch(void)
         NULL, HFILL }},
 
     { &hf_jnx_itch_executed,
-      { "Executed Shares",         "jnx_itch.executed",
+      { "Executed Quantity",         "jnx_itch.executed",
         FT_UINT32, BASE_DEC,  NULL, 0x0,
-        "Number of shares executed", HFILL }},
+        "Quantity executed", HFILL }},
 
     { &hf_jnx_itch_executed_64,
-      { "Executed Shares",         "jnx_itch.executed",
+      { "Executed Quantity",         "jnx_itch.executed",
         FT_UINT64, BASE_DEC,  NULL, 0x0,
-        "Number of shares executed", HFILL }},
+        "Quantity executed", HFILL }},
 
     { &hf_jnx_itch_match_number,
       { "Match Number",         "jnx_itch.match_number",
