@@ -39,17 +39,17 @@
 #define ORDER_REPLACED_MSG_LEN_64 33
 
 static const value_string message_types_val[] = {
- { 'A', "Add Order" },
- { 'U', "Order Replace" },
- { 'E', "Order Executed" },
- { 'T', "Second" },
- { 'D', "Order Delete" },
- { 'S', "System Event" },
+ { 'T', "Timestamp - Seconds" },
  { 'L', "Price Tick Size" },
- { 'R', "Stock Directory" },
- { 'H', "Stock Trading Action" },
- { 'F', "Add Order with Attribution" },
- { 'Y', "Short Selling Price Restriction Indicator" },
+ { 'R', "Orderbook Directory" },
+ { 'H', "Trading State" },
+ { 'Y', "Short Selling Price Restriction State" },
+ { 'A', "Order Added" },
+ { 'F', "Order Added with Attributes" },
+ { 'E', "Order Executed" },
+ { 'D', "Order Deleted" },
+ { 'U', "Order Replaced" },
+ { 'S', "System Event" },
  { 0, NULL }
 };
 
