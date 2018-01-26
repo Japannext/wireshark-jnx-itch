@@ -91,7 +91,7 @@ static gint ett_jnx_itch = -1;
 static int hf_jnx_itch_message_type = -1;
 static int hf_jnx_itch_group = -1;
 static int hf_jnx_itch_isin = -1;
-static int hf_jnx_itch_stock = -1;
+static int hf_jnx_itch_orderbook = -1;
 static int hf_jnx_itch_round_lot_size = -1;
 static int hf_jnx_itch_round_lot_size_64 = -1;
 static int hf_jnx_itch_tick_size_table = -1;
@@ -264,13 +264,13 @@ price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int 
 
 /* -------------------------- */
 static int
-stock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
+orderbook(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 {
   if (jnx_itch_tree) {
-      guint32 stock_id = tvb_get_ntohl(tvb, offset);
+      guint32 orderbook_id = tvb_get_ntohl(tvb, offset);
 
-      proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_stock, tvb, offset, 4, stock_id);
-      col_append_fstr(pinfo->cinfo, COL_INFO, " <%d>", stock_id);
+      proto_tree_add_uint(jnx_itch_tree, hf_jnx_itch_orderbook, tvb, offset, 4, orderbook_id);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " <%d>", orderbook_id);
   }
   return offset + 4;
 }
@@ -299,7 +299,7 @@ order(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 
   offset = quantity(tvb, pinfo, jnx_itch_tree, hf_jnx_itch_quantity, hf_jnx_itch_quantity_64, offset);
 
-  offset = stock(tvb, pinfo, jnx_itch_tree, offset);
+  offset = orderbook(tvb, pinfo, jnx_itch_tree, offset);
 
   proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
   offset += 4;
@@ -336,7 +336,7 @@ executed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offse
 static int
 orderbook_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int offset)
 {
-  offset = stock(tvb, pinfo, jnx_itch_tree, offset);
+  offset = orderbook(tvb, pinfo, jnx_itch_tree, offset);
   proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_isin, tvb, offset, 12, ENC_ASCII|ENC_NA);
   offset += 12;
   proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
@@ -421,7 +421,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 'H': /* Stock trading action */
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
-        offset = stock(tvb, pinfo, jnx_itch_tree, offset);
+        offset = orderbook(tvb, pinfo, jnx_itch_tree, offset);
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
         offset += 4;
         offset = proto_tree_add_char(jnx_itch_tree, hf_jnx_itch_trading_state, tvb, offset, trading_state_val);
@@ -429,7 +429,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 'Y': /* Short Selling Price Restriction Indicator */
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
-        offset = stock(tvb, pinfo, jnx_itch_tree, offset);
+        offset = orderbook(tvb, pinfo, jnx_itch_tree, offset);
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_group, tvb, offset, 4, ENC_ASCII|ENC_NA);
         offset += 4;
         offset = proto_tree_add_char(jnx_itch_tree, hf_jnx_itch_price_restriction_state, tvb, offset, price_restriction_state_val);
@@ -554,15 +554,15 @@ proto_register_jnx_itch(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_jnx_itch_stock,
-      { "Stock",         "jnx_itch.stock",
+    { &hf_jnx_itch_orderbook,
+      { "Stock",         "jnx_itch.orderbook",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Uniqie security identifier", HFILL }},
+        "Uniqie orderbook identifier", HFILL }},
 
     { &hf_jnx_itch_isin,
       { "ISIN",         "jnx_itch.isin",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Denotes the security ISIN for the issue.", HFILL }},
+        "Denotes the orderbook ISIN for the issue.", HFILL }},
 
     { &hf_jnx_itch_tick_size_table,
       { "Tick Size Table",         "jnx_itch.tick_size_table",
@@ -612,7 +612,7 @@ proto_register_jnx_itch(void)
     { &hf_jnx_itch_group,
       { "Group",         "jnx_itch.group",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        "Security group identifier", HFILL }},
+        "Orderbook group identifier", HFILL }},
 
     { &hf_jnx_itch_trading_state,
       { "Trading State",         "jnx_itch.trading_state",
