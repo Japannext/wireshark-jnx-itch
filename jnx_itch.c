@@ -254,10 +254,10 @@ static int
 price(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree, int id, int offset)
 {
   if (jnx_itch_tree) {
-      gdouble value = tvb_get_ntohl(tvb, offset) / 10.0;
+      guint32 value = tvb_get_ntohl(tvb, offset);
 
-      proto_tree_add_double(jnx_itch_tree, id, tvb, offset, 4, value);
-      col_append_fstr(pinfo->cinfo, COL_INFO, " price %g", value);
+      proto_tree_add_uint(jnx_itch_tree, id, tvb, offset, 4, value);
+      col_append_fstr(pinfo->cinfo, COL_INFO, " price %u", value);
   }
   return offset + 4;
 }
@@ -656,7 +656,7 @@ proto_register_jnx_itch(void)
 
     { &hf_jnx_itch_price,
       { "Price",         "jnx_itch.price",
-        FT_DOUBLE, BASE_NONE, NULL, 0x0,
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_jnx_itch_attribution,
