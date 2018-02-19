@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Documentation:
- * https://www.japannext.co.jp/en/pub_data/pub_onboarding/Japannext_PTS_ITCH_v1.4.pdf
+ * https://www.japannext.co.jp/library/
  */
 
 #ifdef HAVE_CONFIG_H
