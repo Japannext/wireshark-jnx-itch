@@ -713,7 +713,7 @@ proto_register_jnx_itch(void)
     module_t *jnx_itch_module;
 
     /* Register the protocol name and description */
-    proto_jnx_itch = proto_register_protocol("SBI Japannext ITCH-TotalView", "JNX-ITCH", "jnx_itch");
+    proto_jnx_itch = proto_register_protocol("SBI Japannext ITCH", "JNX-ITCH", "jnx_itch");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_jnx_itch, hf, array_length(hf));
