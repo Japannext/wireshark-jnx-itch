@@ -30,6 +30,7 @@
 #define ORDER_EXECUTED_MSG_LEN 25
 #define ORDER_DELETED_MSG_LEN 13
 #define ORDER_REPLACED_MSG_LEN 29
+#define END_OF_SNAPSHOT_MSG_LEN 9
 
 // 8 byte Quantity fields
 #define ORDERBOOK_DIRECTORY_MSG_LEN_64 53
@@ -50,6 +51,7 @@ static const value_string message_types_val[] = {
  { 'D', "Order Deleted" },
  { 'U', "Order Replaced" },
  { 'S', "System Event" },
+ { 'G', "End of Snapshot" },
  { 0, NULL }
 };
 
@@ -120,6 +122,7 @@ static int hf_jnx_itch_order_type = -1;
 static int hf_jnx_itch_executed = -1;
 static int hf_jnx_itch_executed_64 = -1;
 static int hf_jnx_itch_match_number = -1;
+static int hf_jnx_itch_sequence_number = -1;
 
 static int hf_jnx_itch_message = -1;
 
@@ -158,6 +161,8 @@ detect_32bit_message(tvbuff_t *tvb)
         return msg_len == ORDER_DELETED_MSG_LEN;
     case 'U':
         return msg_len == ORDER_REPLACED_MSG_LEN;
+    case 'G':
+        return msg_len == END_OF_SNAPSHOT_MSG_LEN;
     default:
         break;
     }
@@ -465,6 +470,11 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset += 8;
         break;
 
+    case 'G' : /* End of Snapshot */
+        proto_tree_add_uint64(jnx_itch_tree, hf_jnx_itch_sequence_number, tvb, offset, 8, tvb_get_ntoh64(tvb, offset));
+        offset += 8;
+        break;
+
     default:
         /* unknown */
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
@@ -683,6 +693,11 @@ proto_register_jnx_itch(void)
       { "Match Number",         "jnx_itch.match_number",
         FT_UINT64, BASE_DEC, NULL, 0x0,
         "Match number", HFILL }},
+
+    { &hf_jnx_itch_sequence_number,
+      { "Sequence Number",         "jnx_itch.sequence_number",
+        FT_UINT64, BASE_DEC, NULL, 0x0,
+        "Sequence number", HFILL }},
 
     { &hf_jnx_itch_message,
       { "Message",         "jnx_itch.message",
