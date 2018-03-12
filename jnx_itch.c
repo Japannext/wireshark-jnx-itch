@@ -657,7 +657,7 @@ proto_register_jnx_itch(void)
     { &hf_jnx_itch_price,
       { "Price",         "jnx_itch.price",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
+        "Price", HFILL }},
 
     { &hf_jnx_itch_attribution,
       { "Attribution",         "jnx_itch.attribution",
