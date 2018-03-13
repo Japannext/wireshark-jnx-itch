@@ -379,7 +379,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 jnx_itch_type;
     int  offset = 0;
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBI Japannext ITCH-TotalView");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBI Japannext ITCH");
 
     jnx_itch_type = tvb_get_guint8(tvb, offset);
 
@@ -388,7 +388,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_clear(pinfo->cinfo, COL_INFO);
         col_add_str(pinfo->cinfo, COL_INFO, rep);
         if (tree) {
-            ti = proto_tree_add_protocol_format(tree, proto_jnx_itch, tvb, offset, -1, "SBI Japannext TotalView-ITCH %s",
+            ti = proto_tree_add_protocol_format(tree, proto_jnx_itch, tvb, offset, -1, "SBI Japannext ITCH %s",
                                                 rep);
 
             jnx_itch_tree = proto_item_add_subtree(ti, ett_jnx_itch);
