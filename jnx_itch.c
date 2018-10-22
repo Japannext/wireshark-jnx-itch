@@ -504,13 +504,13 @@ static void range_add_moldudp64_tcp_callback(guint32 port) {
 static void jnx_itch_prefs(void)
 {
     range_foreach(soupbintcp_port_range, range_delete_soupbintcp_port_callback);
-    g_free(soupbintcp_port_range);
-    soupbintcp_port_range = range_copy(global_soupbintcp_port_range);
+    wmem_free(wmem_epan_scope(), soupbintcp_port_range);
+    soupbintcp_port_range = range_copy(wmem_epan_scope(), global_soupbintcp_port_range);
     range_foreach(soupbintcp_port_range, range_add_soupbintcp_port_callback);
 
     range_foreach(moldudp64_udp_range, range_delete_moldudp64_tcp_callback);
-    g_free(moldudp64_udp_range);
-    moldudp64_udp_range = range_copy(global_moldudp64_udp_range);
+    wmem_free(wmem_epan_scope(), moldudp64_udp_range);
+    moldudp64_udp_range = range_copy(wmem_epan_scope(), global_moldudp64_udp_range);
     range_foreach(moldudp64_udp_range, range_add_moldudp64_tcp_callback);
 }
 
@@ -722,11 +722,11 @@ proto_register_jnx_itch(void)
     jnx_itch_module = prefs_register_protocol(proto_jnx_itch, jnx_itch_prefs);
 
     prefs_register_range_preference(jnx_itch_module, "tcp.port", "SoupBinTCP ports", "SoupBinTCP port range", &global_soupbintcp_port_range, 65535);
-    soupbintcp_port_range = range_empty();
+    soupbintcp_port_range = range_empty(NULL);
 
     prefs_register_range_preference(jnx_itch_module, "udp.port", "MoldUDP64 UDP Ports", "MoldUDP64 UDP port to dissect on.", &global_moldudp64_udp_range, 65535);
 
-    moldudp64_udp_range = range_empty();
+    moldudp64_udp_range = range_empty(NULL);
 }
 
 /* If this dissector uses sub-dissector registration add a registration routine.
