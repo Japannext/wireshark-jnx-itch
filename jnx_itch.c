@@ -485,33 +485,33 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Register the protocol with Wireshark */
 
 
-static void range_delete_soupbintcp_port_callback(guint32 port) {
+static void range_delete_soupbintcp_port_callback(guint32 port, gpointer ptr _U_) {
     dissector_delete_uint("tcp.port", port, jnx_itch_handle);
 }
 
-static void range_add_soupbintcp_port_callback(guint32 port) {
+static void range_add_soupbintcp_port_callback(guint32 port, gpointer ptr _U_) {
     dissector_add_uint("tcp.port", port, jnx_itch_handle);
 }
 
-static void range_delete_moldudp64_tcp_callback(guint32 port) {
+static void range_delete_moldudp64_tcp_callback(guint32 port, gpointer ptr _U_) {
     dissector_delete_uint("moldudp64.payload", port, jnx_itch_handle);
 }
 
-static void range_add_moldudp64_tcp_callback(guint32 port) {
+static void range_add_moldudp64_tcp_callback(guint32 port, gpointer ptr _U_) {
     dissector_add_uint("moldudp64.payload", port, jnx_itch_handle);
 }
 
 static void jnx_itch_prefs(void)
 {
-    range_foreach(soupbintcp_port_range, range_delete_soupbintcp_port_callback);
+    range_foreach(soupbintcp_port_range, range_delete_soupbintcp_port_callback, NULL);
     wmem_free(wmem_epan_scope(), soupbintcp_port_range);
     soupbintcp_port_range = range_copy(wmem_epan_scope(), global_soupbintcp_port_range);
-    range_foreach(soupbintcp_port_range, range_add_soupbintcp_port_callback);
+    range_foreach(soupbintcp_port_range, range_add_soupbintcp_port_callback, NULL);
 
-    range_foreach(moldudp64_udp_range, range_delete_moldudp64_tcp_callback);
+    range_foreach(moldudp64_udp_range, range_delete_moldudp64_tcp_callback, NULL);
     wmem_free(wmem_epan_scope(), moldudp64_udp_range);
     moldudp64_udp_range = range_copy(wmem_epan_scope(), global_moldudp64_udp_range);
-    range_foreach(moldudp64_udp_range, range_add_moldudp64_tcp_callback);
+    range_foreach(moldudp64_udp_range, range_add_moldudp64_tcp_callback, NULL);
 }
 
 /** Returns a guess if a packet is OUCH or not
