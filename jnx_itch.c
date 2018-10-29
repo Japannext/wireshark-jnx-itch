@@ -371,13 +371,15 @@ orderbook_directory(tvbuff_t *tvb, packet_info *pinfo, proto_tree *jnx_itch_tree
 }
 
 /* ---------------------------- */
-static void
-dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item *ti;
     proto_tree *jnx_itch_tree = NULL;
     guint8 jnx_itch_type;
     int  offset = 0;
+
+    (void)(data);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBI Japannext ITCH");
 
@@ -480,6 +482,8 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(jnx_itch_tree, hf_jnx_itch_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
         break;
     }
+
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark */
@@ -533,7 +537,7 @@ dissect_jnx_itch_heur(
         return FALSE;
 
     /* Perform dissection of this (initial) packet */
-    dissect_jnx_itch(tvb, pinfo, tree);
+    dissect_jnx_itch(tvb, pinfo, tree, NULL);
 
     return TRUE;
 }
