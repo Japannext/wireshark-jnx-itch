@@ -400,7 +400,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch (jnx_itch_type) {
     case 'T': /* seconds */
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_second, offset);
-        return;
+        break;
 
     case 'S': /* system event */
         offset = timestamp (tvb, jnx_itch_tree, hf_jnx_itch_nanoseconds, offset);
