@@ -3,7 +3,7 @@
  *
  * Copyright 1998 Gerald Combs <gerald@wireshark.org>
  * Copyright 2007,2008 Didier Gautheron <dgautheron@magic.fr>
- * Copyright 2013 SBI Japannext Co., Ltd. <https://www.japannext.co.jp/>
+ * Copyright 2013-2020 Japannext Co., Ltd. <https://www.japannext.co.jp/>
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
@@ -381,7 +381,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 
     (void)(data);
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBI Japannext ITCH");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Japannext ITCH");
 
     jnx_itch_type = tvb_get_guint8(tvb, offset);
 
@@ -390,7 +390,7 @@ dissect_jnx_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
         col_clear(pinfo->cinfo, COL_INFO);
         col_add_str(pinfo->cinfo, COL_INFO, rep);
         if (tree) {
-            ti = proto_tree_add_protocol_format(tree, proto_jnx_itch, tvb, offset, -1, "SBI Japannext ITCH %s",
+            ti = proto_tree_add_protocol_format(tree, proto_jnx_itch, tvb, offset, -1, "Japannext ITCH %s",
                                                 rep);
 
             jnx_itch_tree = proto_item_add_subtree(ti, ett_jnx_itch);
@@ -717,7 +717,7 @@ proto_register_jnx_itch(void)
     module_t *jnx_itch_module;
 
     /* Register the protocol name and description */
-    proto_jnx_itch = proto_register_protocol("SBI Japannext ITCH", "JNX-ITCH", "jnx_itch");
+    proto_jnx_itch = proto_register_protocol("Japannext ITCH", "JNX-ITCH", "jnx_itch");
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_jnx_itch, hf, array_length(hf));
