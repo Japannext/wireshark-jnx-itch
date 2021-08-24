@@ -19,6 +19,17 @@
 #include <epan/proto.h>
 #include <ws_attributes.h>
 
+#ifndef VERSION
+#define VERSION "1.6.0"
+#endif
+
+#define DLL_PUBLIC __attribute__((__visibility__("default")))
+
+DLL_PUBLIC const gchar plugin_version[] = VERSION;
+DLL_PUBLIC const gchar plugin_release[] = VERSION_RELEASE;
+
+DLL_PUBLIC void plugin_register(void);
+
 #define TIMESTAMP_SECONDS_MSG_LEN 5
 #define SYSTEM_EVENT_MSG_LEN 10
 #define PRICE_TICK_SIZE_MSG_LEN 17
@@ -743,4 +754,14 @@ proto_reg_handoff_jnx_itch(void)
     jnx_itch_handle = create_dissector_handle(dissect_jnx_itch, proto_jnx_itch);
     heur_dissector_add("soupbintcp", dissect_jnx_itch_heur, "ITCH over SoupBinTCP", "jnx_itch_soupbintcp", proto_jnx_itch, HEURISTIC_ENABLE);
     dissector_add_for_decode_as("moldudp64.payload", jnx_itch_handle); /* for "decode-as" */
+}
+
+void
+plugin_register(void)
+{
+    static proto_plugin plug;
+
+    plug.register_protoinfo = proto_register_jnx_itch;
+    plug.register_handoff = proto_reg_handoff_jnx_itch; /* or NULL */
+    proto_register_plugin(&plug);
 }
