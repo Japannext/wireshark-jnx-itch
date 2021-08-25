@@ -26,7 +26,17 @@ autoreconf -v -i
 ./configure
 if [[ -n $VERSION_RELEASE ]]; then
 	make VERSION_RELEASE=$VERSION_RELEASE
+	set +x
+	echo
+	echo "To install, run the following:"
+	echo
+	echo "make VERSION_RELEASE=${VERSION_RELEASE} install-home"
 else
 	make
+	set +x
+	echo
+	echo "To install, run the following:"
+	echo
+	echo "make install-home"
 fi
 # make install-home
