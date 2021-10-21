@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-if ! type -p pkgconf >/dev/null; then
-	echo "You need to have pkgconf installed"
+if ! type -p pkg-config >/dev/null; then
+	echo "You need to have pkgconfig installed"
 	exit 1
 fi
 
-if ! version_release=$(pkgconf --variable VERSION_RELEASE wireshark); then
+if ! version_release=$(pkg-config --variable VERSION_RELEASE wireshark); then
 	echo "You should install the 'wireshark-devel' package or similar"
 	exit 1
 fi
