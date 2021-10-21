@@ -23,6 +23,8 @@ version_release=$(pkg-config --variable VERSION_RELEASE wireshark)
 if [ -z "$version_release" ]
 then
         version_release=VERSION_RELEASE=$(rpm -q wireshark-devel --qf %{VERSION} | cut -d. -f1-2)
+else
+        version_release=
 fi
 
 autoreconf -v -i

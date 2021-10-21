@@ -13,30 +13,23 @@ fi
 if [[ -z $version_release ]]; then
 	echo "You have a buggy version of wireshark-devel which does not define the VERSION_RELEASE variable"
 	if type -p rpm >/dev/null; then
-		VERSION_RELEASE=$(rpm -q wireshark-devel --qf %{VERSION} | cut -d. -f1-2)
-		echo "Trying to work around it by assuming VERSION_RELEASE=${VERSION_RELEASE}"
+		version_release="VERSION_RELEASE=$(rpm -q wireshark-devel --qf %{VERSION} | cut -d. -f1-2)"
+		echo "Trying to work around it by assuming ${version_release}"
 	else
 		echo "The compiled plugin will most likely refuse to be loaded by wireshark, but buildig it anyway"
 	fi
+else
+	version_release=
 fi
 
 set -ex
 
 autoreconf -v -i
 ./configure
-if [[ -n $VERSION_RELEASE ]]; then
-	make VERSION_RELEASE=$VERSION_RELEASE
-	set +x
-	echo
-	echo "To install, run the following:"
-	echo
-	echo "make VERSION_RELEASE=${VERSION_RELEASE} install-home"
-else
-	make
-	set +x
-	echo
-	echo "To install, run the following:"
-	echo
-	echo "make install-home"
-fi
+make $version_release
+set +x
+echo
+echo "To install, run the following:"
+echo
+echo "make ${version_release} install-home"
 # make install-home
